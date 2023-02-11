@@ -70,7 +70,7 @@ Start Pact
 
 Load the REPL
 ```bash
-  (load "couponing.repl" true)
+  (load "coupon.repl" true)
 ```
 ## License
 
