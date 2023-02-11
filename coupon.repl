@@ -1,0 +1,204 @@
+;; Initiate ;;
+(begin-tx)
+(env-exec-config ['DisableInlineMemCheck])
+(env-gasmodel "table")
+(env-gaslimit 150000)
+
+(define-namespace 'test (sig-keyset) (sig-keyset))
+(env-data {'ns: 'test})
+
+(load "fungible-v2.pact")
+(load "fungible-xchain-v1.pact")
+(load "coin.pact")
+
+(env-gaslog)
+(env-gas 0)
+(load "coupon.pact")
+
+(create-table coupon-collection-table)
+(create-table coupon-ledger-table)
+
+(create-table coin.coin-table)
+(create-table coin.allocation-table)
+
+(env-data { "k:fabian" : ["fabian"], "k:alice": ["alice"], "k:bob": ["bob"], "k:burn" : ["burn"] })
+(env-keys ["fabian", "alice", "bob", "burn"])
+(define-keyset "test.fabian" (read-keyset "k:fabian"))
+(define-keyset "test.alice" (read-keyset "k:alice"))
+(define-keyset "test.bob" (read-keyset "k:bob"))
+(define-keyset "test.burn" (read-keyset "k:burn"))
+
+(use coin)
+
+(create-account "k:fabian" (read-keyset "k:fabian"))
+(create-account "k:alice" (read-keyset "k:alice"))
+(create-account "k:bob" (read-keyset "k:bob"))
+(create-account "k:burn" (read-keyset "k:burn"))
+(expect "Coin balance correct." 0.0 (coin.get-balance "k:fabian"))
+(commit-tx)
+
+;; TEST coin ;;
+(begin-tx)
+(use coin)
+(test-capability (CREDIT "k:fabian"))
+(credit "k:fabian" (read-keyset "k:fabian") 100.0)
+(expect "coin balance equals credit" 100.0 (get-balance "k:fabian"))
+
+(test-capability (CREDIT "k:alice"))
+(credit "k:alice" (read-keyset "k:alice") 50.0)
+(expect "coin balance equals credit" 50.0 (get-balance "k:alice"))
+
+(test-capability (TRANSFER "k:fabian" "k:alice" 5.0))
+(transfer "k:fabian" "k:alice" 5.0)
+(expect-failure "Keyset error" (transfer "k:bob" "k:alice" 5.0))
+(commit-tx)
+
+;; TEST create-collection ;;
+(begin-tx)
+(test.couponsystem.create-collection "firstCollection" "This is my amazing first test collection!" 10 5)
+(expect-failure "Create collection with same name" (test.couponsystem.create-collection "firstCollection" "This is my amazing first test collection!" 10 5))
+(expect-failure "Create collection with no name" (test.couponsystem.create-collection "" "This is my amazing first test collection!" 10 5))
+(expect-failure "Create collection with long name" (test.couponsystem.create-collection "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" "This is my amazing first test collection!" 10 5))
+(expect-failure "Create collection with no description" (test.couponsystem.create-collection "secondCollection" "" 10 5))
+(expect-failure "Create collection with negative supply" (test.couponsystem.create-collection "secondCollection" "This is my amazing second test collection!" -100 5))
+(expect-failure "Create collection with zero supply" (test.couponsystem.create-collection "secondCollection" "This is my amazing second test collection!" 0 5))
+(expect-failure "Create collection with negative discount" (test.couponsystem.create-collection "secondCollection" "This is my amazing second test collection!" 10 -100))
+(expect-failure "Create collection with zero discount" (test.couponsystem.create-collection "secondCollection" "This is my amazing second test collection!" 10 0))
+(expect-failure "Create collection with discount > 100" (test.couponsystem.create-collection "secondCollection" "This is my amazing second test collection!" 10 101))
+(expect-failure "Create collection with wrong datatypes" (test.couponsystem.create-collection "secondCollection" true true true))
+(commit-tx)
+
+;; TEST getter ;;
+(begin-tx)
+(expect "get-current-supply" 0 (test.couponsystem.get-current-supply "firstCollection"))
+(expect "get-max-supply" 10 (test.couponsystem.get-max-supply "firstCollection"))
+(expect "get-discount" 5 (test.couponsystem.get-discount "firstCollection"))
+(commit-tx)
+
+;; TEST mint-coupon ;;
+(begin-tx)
+(expect-failure "Provide no name" (test.couponsystem.mint-coupon "" "k:fabian"))
+(expect-failure "Provide wrong name" (test.couponsystem.mint-coupon "doesNotExist" "k:fabian"))
+(expect-failure "Provide no account" (test.couponsystem.mint-coupon "firstCollection" ""))
+(expect-failure "Provide wrong datatypes" (test.couponsystem.mint-coupon true true))
+
+(test.couponsystem.mint-coupon "firstCollection" "k:fabian")
+(test.couponsystem.mint-coupon "firstCollection" "k:fabian")
+(test.couponsystem.mint-coupon "firstCollection" "k:fabian")
+(test.couponsystem.mint-coupon "firstCollection" "k:fabian")
+(test.couponsystem.mint-coupon "firstCollection" "k:fabian")
+(test.couponsystem.mint-coupon "firstCollection" "k:fabian")
+(test.couponsystem.mint-coupon "firstCollection" "k:fabian")
+(test.couponsystem.mint-coupon "firstCollection" "k:fabian")
+(test.couponsystem.mint-coupon "firstCollection" "k:fabian")
+(test.couponsystem.mint-coupon "firstCollection" "k:fabian")
+
+(expect-failure "Mint more than allowed" (test.couponsystem.mint-coupon "firstCollection" "k:fabian"))
+(commit-tx)
+
+;; TEST transfer-coupon ;;
+
+(begin-tx)
+(env-keys ["fabian"])
+(expect-failure "Empty sender" (test.couponsystem.transfer-coupon "" "k:alice" "firstCollection" 1))
+(expect-failure "Empty receiver" (test.couponsystem.transfer-coupon "k:fabian" "" "firstCollection" 1))
+(expect-failure "Unknown collection" (test.couponsystem.transfer-coupon "k:fabian" "k:alice" "" 1))
+(expect-failure "Unknown collection ID" (test.couponsystem.transfer-coupon "k:fabian" "" "firstCollection" -1))
+(commit-tx)
+
+;; TEST Keyset ;;
+(begin-tx)
+(env-keys ["fabian"])
+(test-capability (test.couponsystem.OWNER "firstCollection" 1))
+(test.couponsystem.transfer-coupon "k:fabian" "k:alice" "firstCollection" 1)
+(commit-tx)
+
+(begin-tx)
+(env-keys ["bob"])
+(expect-failure "Wrong Keyset" (test.couponsystem.transfer-coupon "k:fabian" "k:alice" "firstCollection" 1))
+(commit-tx)
+
+(begin-tx)
+(env-keys ["alice"])
+(test.couponsystem.transfer-coupon "k:alice" "k:bob" "firstCollection" 1)
+(commit-tx)
+
+(begin-tx)
+(env-keys ["alice"])
+(expect-failure "Wrong Keyset" (test.couponsystem.transfer-coupon "k:alice" "k:fabian" "firstCollection" 1))
+(commit-tx)
+
+(begin-tx)
+(env-keys ["bob"])
+(test.couponsystem.transfer-coupon "k:bob" "k:fabian" "firstCollection" 1)
+(commit-tx)
+
+;; TEST add-password-hash ;;
+(begin-tx)
+(env-keys ["fabian"])
+(test-capability (test.couponsystem.OWNER "firstCollection" 1))
+(expect-failure "Unknown collection" (test.couponsystem.add-password-hash "k:fabian" "doesNotExist" 1 "vd2BPGNCOXIxce8_7phXm5SWTjuxyz5CcmLIwGjVIxk")) ;hash abc
+(expect-failure "Unknown collection ID" (test.couponsystem.add-password-hash "k:fabian" "firstCollection" 99 "vd2BPGNCOXIxce8_7phXm5SWTjuxyz5CcmLIwGjVIxk")) ;hash abc
+(expect-failure "Provide wrong datatypes" (test.couponsystem.add-password-hash true true true true))
+(test.couponsystem.add-password-hash "k:fabian" "firstCollection" 1 "vd2BPGNCOXIxce8_7phXm5SWTjuxyz5CcmLIwGjVIxk") ;hash abc
+(expect-failure "Password can not be changed" (test.couponsystem.add-password-hash "k:fabian" "firstCollection" 1 "vd2BPGNCOXIxce8_7phXm5SWTjuxyz5CcmLIwGjVIxk")) ;hash abc
+(commit-tx)
+
+;; TEST keyset add-password-hash ;;
+(begin-tx)
+(env-keys ["alice"])
+(expect-failure "Wrong Keyset" (test.couponsystem.add-password-hash "k:fabian" "firstCollection" 2 "vd2BPGNCOXIxce8_7phXm5SWTjuxyz5CcmLIwGjVIxk")) ;hash abc
+(commit-tx)
+
+;; TEST redeem-coupon-payment-proof ;;
+(begin-tx)
+(env-keys ["fabian"])
+(test-capability (test.couponsystem.OWNER "firstCollection" 1))
+(expect-failure "Unknown collection" (test.couponsystem.redeem-coupon-payment-proof "k:fabian" "doesNotExist" 1)) ;hash abc
+(expect-failure "Unknown collection ID" (test.couponsystem.redeem-coupon-payment-proof "k:fabian" "firstCollection" 99)) ;hash abc
+(expect-failure "Provide wrong datatypes" (test.couponsystem.redeem-coupon-payment-proof true true true))
+(test.couponsystem.redeem-coupon-payment-proof "k:fabian" "firstCollection" 1)
+(commit-tx)
+
+;; TEST keyset redeem-coupon-payment-proof ;;
+(begin-tx)
+(env-keys ["alice"])
+(expect-failure "Wrong Keyset" (test.couponsystem.add-password-hash "k:fabian" "firstCollection" 2 "vd2BPGNCOXIxce8_7phXm5SWTjuxyz5CcmLIwGjVIxk")) ;hash abc
+(commit-tx)
+
+(begin-tx)
+(env-keys ["fabian"])
+(test.couponsystem.add-password-hash "k:fabian" "firstCollection" 2 "vd2BPGNCOXIxce8_7phXm5SWTjuxyz5CcmLIwGjVIxk") ;hash abc
+(commit-tx)
+
+(begin-tx)
+(env-keys ["alice"])
+(expect-failure "Wrong Keyset" (test.couponsystem.redeem-coupon-payment-proof "k:fabian" "firstCollection" 2)) ;hash abc
+(commit-tx)
+
+(begin-tx)
+(env-keys ["fabian"])
+(test.couponsystem.redeem-coupon-payment-proof "k:fabian" "firstCollection" 2) ;hash abc
+(commit-tx)
+
+;; TEST get-password-hash ;;
+(begin-tx)
+(expect "get-password-hash" (hash "abc") (test.couponsystem.get-password-hash "firstCollection" 1)) ;hash abc
+(commit-tx)
+
+;; TEST mark-coupon-payment-proof ;;
+(begin-tx)
+(expect-failure "Unknown collection" (test.couponsystem.redeem-coupon-payment-proof "doesNotExist" 1 "abc")) ;hash abc
+(expect-failure "Unknown collection ID" (test.couponsystem.redeem-coupon-payment-proof "firstCollection" 99 "abc")) ;hash abc
+(expect-failure "Provide wrong datatypes" (test.couponsystem.redeem-coupon-payment-proof true true true))
+(expect-failure "Provide wrong password" (test.couponsystem.mark-coupon-payment-proof "firstCollection" 1 "def"))
+(test.couponsystem.mark-coupon-payment-proof "firstCollection" 1 "abc")
+(commit-tx)
+
+;; TEST Formal verification ;;
+
+(begin-tx)
+(verify "fungible-v2")
+(verify "fungible-xchain-v1")
+(verify "test.couponsystem")
+(commit-tx)
