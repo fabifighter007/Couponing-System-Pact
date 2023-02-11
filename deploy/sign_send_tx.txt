@@ -1,0 +1,8 @@
+# Send file.yaml to blockchain
+# Returns request-key
+pact -a file.yaml | curl -H 'Content-Type: application/json' -d @- https://api.testnet.chainweb.com/chainweb/0.0/testnet04/chain/1/pact/api/v1/send
+
+# Listen to request-key
+# Return result
+curl -H "Content-Type: application/json" -d '{"listen":"request-key"}' -X POST https://api.testnet.chainweb.com/chainweb/0.0/testnet04/chain/1/pact/api/v1/listen
+

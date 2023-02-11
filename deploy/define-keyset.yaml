@@ -1,0 +1,17 @@
+codeFile: define-keyset.pact
+data:
+  upgrade: true
+  fabian:
+    keys:
+      - 16e6f1026b8b5d2c8b558a65f41d4c6e58ea4af74feba4b1601a00cd386a893e
+    pred: keys-all
+networkId: testnet04
+publicMeta:
+  chainId: "1"
+  sender: "k:16e6f1026b8b5d2c8b558a65f41d4c6e58ea4af74feba4b1601a00cd386a893e"
+  gasLimit: 150000
+  gasPrice: 0.00001
+  ttl: 3000
+keyPairs:
+  - public: 16e6f1026b8b5d2c8b558a65f41d4c6e58ea4af74feba4b1601a00cd386a893e
+    secret: <secret>
