@@ -86,6 +86,8 @@ Load the REPL
 
 [Block Explorer](https://explorer.chainweb.com/testnet)
 
+[Testnet Faucet](https://faucet.testnet.chainweb.com/)
+
 
 ## License
 
