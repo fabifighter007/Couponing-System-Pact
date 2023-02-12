@@ -86,7 +86,6 @@ Load the REPL
 
 [Block Explorer](https://explorer.chainweb.com/testnet)
 
-[Pact Language Reference](https://pact-language.readthedocs.io/en/stable/)
 
 ## License
 
