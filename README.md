@@ -9,7 +9,7 @@ A pre-built test environment is available [here](www.google.com). All unit tests
 
 The VM comes with a funded Wallet for interacting with the Smart Contract on the public testnet and is able to run the Smart Contract locally.
 
-Please read the README.txt within the VM and read [below](https://github.com/fabifighter007/Couponing-System-Pact#interact-with-the-smart-contract).
+Please read the README.txt within the VM and [see below](https://github.com/fabifighter007/Couponing-System-Pact#interact-with-the-smart-contract).
 
 ## Use Chainweaver
 You can interact with the Smart Contract by using [Chainweaver Web Wallet](https://chainweaver.kadena.network). Create a wallet and fund it with Coins using the [Testnet-Faucet](https://faucet.testnet.chainweb.com/). Within your wallet, navigate to *Contracts*, press *Module Explorer* and search for `free.deploy-test-couponsystem`. You can call all functions, feel free to test them.
