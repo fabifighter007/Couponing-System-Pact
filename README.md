@@ -8,6 +8,9 @@ Globally deployable blockchain-based couponing system written in the Pact smart 
 A pre-built test environment is available [here](www.google.com). All unit tests and formal verification can be performed here. Please import the VM to [Oracle Virtual Box](https://www.virtualbox.org/).
 
 The VM comes with a funded Wallet for interacting with the Smart Contract on the public testnet and is able to run the Smart Contract locally.
+
+Please read the README.txt within the VM and read [below](https://github.com/fabifighter007/Couponing-System-Pact#interact-with-the-smart-contract).
+
 ## Use Chainweaver
 You can interact with the Smart Contract by using [Chainweaver Web Wallet](https://chainweaver.kadena.network). Create a wallet and fund it with Coins using the [Testnet-Faucet](https://faucet.testnet.chainweb.com/). Within your wallet, navigate to *Contracts*, press *Module Explorer* and search for `free.deploy-test-couponsystem`. You can call all functions, feel free to test them.
 
@@ -53,13 +56,13 @@ pact> (+ "hello, " "world")
 Clone the project
 
 ```bash
-  git clone https://link-to-project
+  git clone https://github.com/fabifighter007/Couponing-System-Pact
 ```
 
 Go to the project directory
 
 ```bash
-  cd my-project
+  cd Couponing-System-Pact
 ```
 
 Start Pact
@@ -72,6 +75,19 @@ Load the REPL
 ```bash
   (load "coupon.repl" true)
 ```
+
+## Usefull Links
+
+[Pact Language Reference](https://pact-language.readthedocs.io/en/stable/)
+
+[Chainweaver Web Wallet](https://chainweaver.kadena.network/)
+
+[Balance Checker](https://balance.chainweb.com/)
+
+[Block Explorer](https://explorer.chainweb.com/testnet)
+
+[Pact Language Reference](https://pact-language.readthedocs.io/en/stable/)
+
 ## License
 
 [MIT](https://choosealicense.com/licenses/apache-2.0/)
