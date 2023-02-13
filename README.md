@@ -5,7 +5,7 @@ Globally deployable blockchain-based couponing system written in the Pact smart 
 ## Use Pre-Built VM
 
 
-A pre-built test environment is available [here](www.google.com). All unit tests and formal verification can be performed here. Please import the VM to [Oracle Virtual Box](https://www.virtualbox.org/).
+A pre-built test environment is available [here](https://www.dropbox.com/sh/n0hue965zccb3mj/AABiZSZR_uROA5adMLRuhUCVa) (SHA-256-Hash: a5a5d81d0bc236d05aabfe3fa8106f0c5bce936d5f542355037b79792994a2cc). All unit tests and formal verification can be performed here. Please import the VM to [Oracle Virtual Box](https://www.virtualbox.org/).
 
 The VM comes with a funded Wallet for interacting with the Smart Contract on the public testnet and is able to run the Smart Contract locally.
 
