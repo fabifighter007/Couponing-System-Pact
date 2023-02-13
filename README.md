@@ -76,13 +76,8 @@ Load the REPL
   (load "coupon.repl" true)
 ```
 
+Feel free to modify the Smart Contract `coupon.pact` and the REPL / Unittest `coupon.repl` by opening it in your favorite text editor.
 
-
-Load the REPL
-
-  (load "coupon.repl" true)
-
-Usefull Links
 
 ## Usefull Links
 
